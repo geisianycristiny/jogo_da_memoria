@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameScreen = document.getElementById('game-screen');
     const endGameScreen = document.getElementById('end-game-screen');
     const rankingScreen = document.getElementById('ranking-screen');
+    const levelUpOverlay = document.getElementById('level-up-overlay');
 
     const levelSelect = document.getElementById('level-select');
     const startBtn = document.getElementById('start-game-btn');
@@ -40,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const POINTS_MATCH = 100;
     const POINTS_ERROR = -5;
     const POINTS_PER_SECOND = 2; // Pontos por segundo restante
+    const MAX_LEVEL = 4;
 
     // Conteúdo das cartas (emojis ou ícones)
     const cardContents = [
@@ -57,12 +59,17 @@ document.addEventListener('DOMContentLoaded', () => {
             screen.classList.remove('active');
         });
         document.getElementById(screenId).classList.add('active');
+
+        // Mostra ou esconde o cabeçalho de jogo
+        const showHeader = screenId === 'game-screen';
+        gameLevelDisplay.style.display = showHeader ? 'block' : 'none';
+        gameScoreDisplay.style.display = showHeader ? 'block' : 'none';
+        gameTimerDisplay.style.display = showHeader ? 'block' : 'none';
     };
 
     // Inicia um novo jogo
     const startGame = (level) => {
         gameLevel = parseInt(level);
-        score = 0;
         matchedPairs = 0;
         canFlip = true;
 
@@ -80,17 +87,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         switchScreen('game-screen');
         startTimer();
-
-        // Mostra as informações do jogo no header
-        gameLevelDisplay.style.display = 'block';
-        gameScoreDisplay.style.display = 'block';
-        gameTimerDisplay.style.display = 'block';
     };
 
     // Atualiza as informações no cabeçalho
     const updateHeaderInfo = () => {
         gameLevelDisplay.textContent = `Nível: ${gameLevel}`;
         gameScoreDisplay.textContent = `Pontos: ${score}`;
+        gameTimerDisplay.textContent = `Tempo: ${timeRemaining}s`;
     };
 
     // Cria as cartas do jogo
@@ -125,11 +128,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inicia o temporizador
     const startTimer = () => {
-        gameTimerDisplay.textContent = `Tempo: ${timeRemaining}s`;
         clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             timeRemaining--;
-            gameTimerDisplay.textContent = `Tempo: ${timeRemaining}s`;
+            updateHeaderInfo();
             if (timeRemaining <= 0) {
                 clearInterval(timerInterval);
                 endGame(false); // Game Over por tempo esgotado
@@ -142,12 +144,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!canFlip) return;
 
         const card = event.currentTarget;
-        if (card.classList.contains('matched') || card.classList.contains('flipped')) {
+        const cardInner = card.querySelector('.card-inner');
+        if (cardInner.classList.contains('matched') || cardInner.classList.contains('flipped')) {
             return;
         }
 
-        card.classList.add('flipped');
-        flippedCards.push(card);
+        cardInner.classList.add('flipped');
+        flippedCards.push(cardInner);
 
         if (flippedCards.length === 2) {
             canFlip = false;
@@ -155,22 +158,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+
     // Verifica se as cartas viradas são um par
     const checkMatch = () => {
         const [card1, card2] = flippedCards;
-        const isMatch = card1.dataset.name === card2.dataset.name;
+        const isMatch = card1.parentElement.dataset.name === card2.parentElement.dataset.name;
 
         if (isMatch) {
             matchedPairs++;
             score += POINTS_MATCH + (timeRemaining * POINTS_PER_SECOND);
             card1.classList.add('matched');
             card2.classList.add('matched');
-            card1.removeEventListener('click', flipCard);
-            card2.removeEventListener('click', flipCard);
+            card1.parentElement.removeEventListener('click', flipCard);
+            card2.parentElement.removeEventListener('click', flipCard);
 
             if (matchedPairs === cards.length / 2) {
-                // Todas as cartas combinadas, ir para o próximo nível
-                setTimeout(nextLevel, 1500);
+                if (gameLevel === MAX_LEVEL) {
+                    endGame(true); // Fim de jogo com vitória!
+                } else {
+                    nextLevel();
+                }
             }
         } else {
             score = Math.max(0, score + POINTS_ERROR);
@@ -185,25 +192,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Avança para o próximo nível
     const nextLevel = () => {
-        gameLevel++;
-        matchedPairs = 0;
-        // Exibe uma mensagem breve de "Nível Concluído"
-        endGameTitle.textContent = 'Parabéns!';
-        endGameMessage.textContent = 'Nível Concluído!';
-        endGameMessage.classList.remove('game-over-message');
-        endGameMessage.classList.add('win-message');
-        finalScoreDisplay.textContent = score;
-        finalLevelDisplay.textContent = gameLevel - 1;
-        switchScreen('end-game-screen');
-        // Salva a pontuação para o próximo nível
-        localStorage.setItem('tempScore', score);
-        localStorage.setItem('tempLevel', gameLevel);
+        clearInterval(timerInterval); // Para o timer do nível atual
+        levelUpOverlay.textContent = `Parabéns! Nível ${gameLevel} Concluído!`;
+        levelUpOverlay.classList.add('active');
 
         setTimeout(() => {
-            const tempScore = parseInt(localStorage.getItem('tempScore')) || 0;
-            const tempLevel = parseInt(localStorage.getItem('tempLevel')) || 1;
-            score = tempScore;
-            startGame(tempLevel);
+            levelUpOverlay.classList.remove('active');
+            gameLevel++; // Incrementa o nível
+            startGame(gameLevel); // Inicia o próximo nível
         }, 2000);
     };
 
@@ -269,7 +265,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Event Listeners ---
-    startBtn.addEventListener('click', () => startGame(levelSelect.value));
+    startBtn.addEventListener('click', () => {
+        score = 0; // Reseta a pontuação ao iniciar um novo jogo
+        startGame(levelSelect.value);
+    });
     showRankingBtn.addEventListener('click', showRanking);
     backToStartBtn.addEventListener('click', () => switchScreen('initial-screen'));
     saveScoreForm.addEventListener('submit', saveScore);
