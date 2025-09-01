@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Memória Senac</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header>
+        <img src="logo-senac-branco.png" alt="Logo SENAC" class="header-logo">
+        <div class="header-info">
+            <div id="game-level" style="display:none;">Nível: 1</div>
+            <div id="game-score" style="display:none;">Pontos: 0</div>
+            <div id="game-timer" style="display:none;">Tempo: 60s</div>
+        </div>
+    </header>
+
+    <img src="logo-senac.webp" alt="Logo SENAC" class="fixed-logo">
+
+    <div class="container">
+
+        <!-- Tela Inicial -->
+        <div id="initial-screen" class="screen active">
+            <h1>Jogo da Memória</h1>
+            <div class="level-select">
+                <label for="level-select">Escolha o Nível Inicial:</label>
+                <select id="level-select">
+                    <option value="1">Nível 1 (4 pares)</option>
+                    <option value="2">Nível 2 (6 pares)</option>
+                    <option value="3">Nível 3 (8 pares)</option>
+                    <option value="4">Nível 4 (10 pares)</option>
+                </select>
+                <div class="action-buttons">
+                    <button id="start-game-btn"><i class="fas fa-play"></i> Iniciar Jogo</button>
+                    <button id="show-ranking-btn"><i class="fas fa-medal"></i> Ver Ranking</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela do Jogo -->
+        <div id="game-screen" class="screen">
+            <div id="game-board" class="game-board"></div>
+        </div>
+
+        <!-- Tela de Fim de Jogo -->
+        <div id="end-game-screen" class="screen">
+            <h2 id="end-game-title"></h2>
+            <p id="end-game-message" class="end-game-message"></p>
+            <p>Sua pontuação final: <span id="final-score">0</span></p>
+            <p>Nível alcançado: <span id="final-level">0</span></p>
+            <form id="save-score-form">
+                <label for="player-name">Seu Nome:</label>
+                <input type="text" id="player-name" required placeholder="Digite seu nome">
+                <button type="submit"><i class="fas fa-save"></i> Salvar Pontuação</button>
+            </form>
+        </div>
+
+        <!-- Tela de Ranking -->
+        <div id="ranking-screen" class="screen">
+            <h2>Ranking de Melhores Pontuações</h2>
+            <ul id="ranking-list" class="ranking-list"></ul>
+            <button id="back-to-start-btn"><i class="fas fa-home"></i> Voltar à Tela Inicial</button>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
