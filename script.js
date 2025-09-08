@@ -6,11 +6,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const endGameScreen = document.getElementById('end-game-screen');
     const rankingScreen = document.getElementById('ranking-screen');
     const levelUpOverlay = document.getElementById('level-up-overlay');
+    const pauseMenu = document.getElementById('pause-menu');
 
     const levelSelect = document.getElementById('level-select');
     const startBtn = document.getElementById('start-game-btn');
     const showRankingBtn = document.getElementById('show-ranking-btn');
     const backToStartBtn = document.getElementById('back-to-start-btn');
+    const pauseBtn = document.getElementById('pause-btn');
+    const resumeBtn = document.getElementById('resume-btn');
+    const exitBtn = document.getElementById('exit-btn');
 
     const gameBoard = document.getElementById('game-board');
     const gameLevelDisplay = document.getElementById('game-level');
@@ -36,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerInterval;
 
     // Constantes do Jogo
-    const BASE_TIME = 60; // Tempo base por nível
+    const BASE_TIME = 90; // Tempo base por nível, agora 90 segundos
     const BASE_PAIRS = 4; // Pares base no nível 1
     const POINTS_MATCH = 100;
     const POINTS_ERROR = -5;
@@ -50,6 +54,13 @@ document.addEventListener('DOMContentLoaded', () => {
         '🍞', '🥐', '🥖', '🥨', '🧀', '🥓', '🍳', '🥞', '🍔', '🍟',
         '🍕', '🌭', '🥪', '🌮', '🌯', '🥙', '🍜', '🍝', '🍣', '🍤'
     ];
+    
+    // Efeitos sonoros
+    const flipSound = new Audio('assets/sounds/carta-virando.mp3');
+    const matchSound = new Audio('assets/sounds/efeito-de-acerto.mp3');
+    const errorSound = new Audio('assets/sounds/efeito-de-erro.mp3');
+    const winSound = new Audio('assets/sounds/efeito-venceu.mp3');
+    const gameOverSound = new Audio('assets/sounds/game-over.mp3');
 
     // --- Funções Principais ---
 
@@ -59,6 +70,10 @@ document.addEventListener('DOMContentLoaded', () => {
             screen.classList.remove('active');
         });
         document.getElementById(screenId).classList.add('active');
+
+        // Mostra ou esconde o botão de pausa no cabeçalho
+        const showPauseBtn = screenId === 'game-screen';
+        pauseBtn.style.display = showPauseBtn ? 'block' : 'none';
 
         // Mostra ou esconde o cabeçalho de jogo
         const showHeader = screenId === 'game-screen';
@@ -77,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Define o número de pares e o tempo com base no nível
         const numPairs = BASE_PAIRS + (gameLevel - 1) * 2;
-        timeRemaining = BASE_TIME + (gameLevel - 1) * 10;
+        timeRemaining = BASE_TIME + (gameLevel - 1) * 15; // Tempo aumentado
 
         gameBoard.innerHTML = '';
         gameBoard.style.gridTemplateColumns = `repeat(auto-fit, minmax(70px, 1fr))`;
@@ -149,6 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        flipSound.play();
         cardInner.classList.add('flipped');
         flippedCards.push(cardInner);
 
@@ -165,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isMatch = card1.parentElement.dataset.name === card2.parentElement.dataset.name;
 
         if (isMatch) {
+            matchSound.play();
             matchedPairs++;
             score += POINTS_MATCH + (timeRemaining * POINTS_PER_SECOND);
             card1.classList.add('matched');
@@ -180,6 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } else {
+            errorSound.play();
             score = Math.max(0, score + POINTS_ERROR);
             card1.classList.remove('flipped');
             card2.classList.remove('flipped');
@@ -203,16 +221,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000);
     };
 
+    // Pausa o jogo
+    const pauseGame = () => {
+        clearInterval(timerInterval);
+        canFlip = false;
+        pauseMenu.classList.remove('hidden');
+    };
+
+    // Continua o jogo
+    const resumeGame = () => {
+        pauseMenu.classList.add('hidden');
+        canFlip = true;
+        startTimer();
+    };
+
+    // Sai do jogo e volta para a tela inicial
+    const exitGame = () => {
+        clearInterval(timerInterval);
+        pauseMenu.classList.add('hidden');
+        switchScreen('initial-screen');
+    };
+
+
     // Finaliza o jogo (vitória ou derrota)
     const endGame = (isWin) => {
         clearInterval(timerInterval);
 
         if (isWin) {
+            winSound.play();
             endGameTitle.textContent = 'Vitória!';
             endGameMessage.textContent = 'Você completou o último nível!';
             endGameMessage.classList.add('win-message');
             endGameMessage.classList.remove('game-over-message');
         } else {
+            gameOverSound.play();
             endGameTitle.textContent = 'Fim de Jogo!';
             endGameMessage.textContent = 'O tempo acabou!';
             endGameMessage.classList.add('game-over-message');
@@ -272,4 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showRankingBtn.addEventListener('click', showRanking);
     backToStartBtn.addEventListener('click', () => switchScreen('initial-screen'));
     saveScoreForm.addEventListener('submit', saveScore);
+    pauseBtn.addEventListener('click', pauseGame);
+    resumeBtn.addEventListener('click', resumeGame);
+    exitBtn.addEventListener('click', exitGame);
 });

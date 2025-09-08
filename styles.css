@@ -25,7 +25,7 @@ body {
     align-items: center;
     min-height: 100vh;
     flex-direction: column;
-    padding-top: 60px; /* Espaço para o header fixo */
+    padding-top: 60px;
 }
 
 header {
@@ -136,6 +136,7 @@ input:focus {
     background-color: var(--secondary-color);
     border-radius: 12px;
     width: 100%;
+    position: relative;
 }
 
 .card {
@@ -188,6 +189,65 @@ input:focus {
     background-color: var(--card-face-color);
     color: var(--primary-color);
     transform: rotateY(180deg);
+}
+
+.level-up-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(54, 79, 107, 0.9);
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 700;
+    padding: 30px 50px;
+    border-radius: 12px;
+    z-index: 200;
+    display: none;
+    opacity: 0;
+    animation: fadeInOut 2s forwards;
+}
+
+.level-up-overlay.active {
+    display: block;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.screen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.screen-overlay.hidden {
+    display: none;
+}
+
+.menu-content {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px var(--shadow-color);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.menu-content h2 {
+    color: var(--primary-color);
 }
 
 .ranking-list {
@@ -261,5 +321,9 @@ input:focus {
     select, button, input {
         font-size: 0.9rem;
         padding: 8px 15px;
+    }
+    .level-up-overlay {
+        font-size: 1.5rem;
+        padding: 20px 30px;
     }
 }

@@ -18,6 +18,7 @@
             <div id="game-level" style="display:none;">Nível: 1</div>
             <div id="game-score" style="display:none;">Pontos: 0</div>
             <div id="game-timer" style="display:none;">Tempo: 60s</div>
+            <button id="pause-btn" style="display:none;"><i class="fas fa-pause"></i> Pausar</button>
         </div>
     </header>
 
@@ -46,6 +47,13 @@
         <!-- Tela do Jogo -->
         <div id="game-screen" class="screen">
             <div id="level-up-overlay" class="level-up-overlay"></div>
+            <div id="pause-menu" class="screen-overlay hidden">
+                <div class="menu-content">
+                    <h2>Jogo Pausado</h2>
+                    <button id="resume-btn"><i class="fas fa-play"></i> Continuar</button>
+                    <button id="exit-btn"><i class="fas fa-home"></i> Sair do Jogo</button>
+                </div>
+            </div>
             <div id="game-board" class="game-board"></div>
         </div>
 
