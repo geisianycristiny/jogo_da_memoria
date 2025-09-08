@@ -40,12 +40,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerInterval;
 
     // Constantes do Jogo
-    const BASE_TIME = 90; // Tempo base por nível, agora 90 segundos
-    const BASE_PAIRS = 4; // Pares base no nível 1
+    const BASE_TIME = 75; 
+    const BONUS_TIME_PER_LEVEL = 15;
+    const BASE_PAIRS = 4;
     const POINTS_MATCH = 100;
     const POINTS_ERROR = -5;
-    const POINTS_PER_SECOND = 2; // Pontos por segundo restante
-    const MAX_LEVEL = 4;
+    const POINTS_PER_SECOND = 2;
+    const MAX_LEVEL = 8;
 
     // Conteúdo das cartas (emojis ou ícones)
     const cardContents = [
@@ -92,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Define o número de pares e o tempo com base no nível
         const numPairs = BASE_PAIRS + (gameLevel - 1) * 2;
-        timeRemaining = BASE_TIME + (gameLevel - 1) * 15; // Tempo aumentado
+        timeRemaining = BASE_TIME + (gameLevel - 1) * BONUS_TIME_PER_LEVEL;
 
         gameBoard.innerHTML = '';
         gameBoard.style.gridTemplateColumns = `repeat(auto-fit, minmax(70px, 1fr))`;
